@@ -1,0 +1,136 @@
+Sub StockAnalysis()
+
+'Dimension of each variable
+    Dim Ticker As String
+    Dim YearChange As Double
+    Dim PercentChange As Double
+    Dim TotalStockVolume As Variant
+    Dim YearOpen As Double
+    Dim YearClose As Double
+'Setting of initial values for each variable
+    YearChange = 0
+    PercentChange = 0
+    TotalStockVolume = 0
+    YearOpen = 0
+    YearClose = 0
+    
+    
+'Start of Loop through Worksheets
+
+For Each ws In Worksheets
+
+'Titles
+        ws.Range("I1") = "Ticker"
+        ws.Range("J1") = "Yearly Change"
+        ws.Range("K1") = "Percent Change"
+        ws.Range("L1") = "Total Stock Volume"
+        ws.Range("N2") = "Greatest % Increase"
+        ws.Range("N3") = "Greatest % Decrease"
+        ws.Range("N4") = "Greatest Total Volume"
+        ws.Range("O1") = "Ticker"
+        ws.Range("P1") = "Value"
+        
+'Setting up a SummaryRow for the summary table and the last row of the data
+        SummaryRow = 2
+        LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+        
+        
+        For i = 2 To LastRow
+            
+           If ws.Cells(i, 1).Value <> ws.Cells(i - 1, 1).Value Then
+                
+               YearOpen = ws.Cells(i, 3).Value
+                
+           End If
+            
+            If ws.Cells(i + 1, 1) <> ws.Cells(i, 1) Then
+                
+                YearClose = ws.Cells(i, 6).Value
+                
+                ws.Range("I" & SummaryRow) = ws.Cells(i, 1)
+                YearChange = YearChange + (YearClose - YearOpen)
+                ws.Range("J" & SummaryRow) = YearChange
+                
+                If YearChange <> 0 And YearOpen <> 0 Then
+                    PercentChange = PercentChange + (YearChange / YearOpen)
+                    ws.Range("K" & SummaryRow) = PercentChange
+                    ws.Range("K" & SummaryRow).NumberFormat = "0.00%"
+                Else
+                    ws.Range("K" & SummaryRow) = PercentChange
+                    ws.Range("K" & SummaryRow).NumberFormat = "0.00%"
+                End If
+                
+                TotalStockVolume = TotalStockVolume + ws.Cells(i, 7)
+                ws.Range("L" & SummaryRow) = TotalStockVolume
+                
+                If YearChange > 0 Then
+                    ws.Range("J" & SummaryRow).Interior.ColorIndex = 4
+                Else
+                    ws.Range("J" & SummaryRow).Interior.ColorIndex = 3
+                End If
+            
+                    
+                YearChange = 0
+                PercentChange = 0
+                YearOpen = 0
+                YearClose = 0
+                TotalStockVolume = 0
+                SummaryRow = SummaryRow + 1
+                
+     
+            Else
+                TotalStockVolume = TotalStockVolume + ws.Cells(i, 7)
+                
+        
+            End If
+            
+        Next i
+    
+        
+   'Challenge Table
+   
+        LastRow2 = ws.Cells(Rows.Count, 9).End(xlUp).Row
+        
+        Dim GreatTick As String
+        Dim BadTick As String
+        Dim VolumeTick As String
+        Dim GreatTickValue As Double
+        Dim BadTickValue As Double
+        Dim VolumeTickValue As Variant
+        
+        GreatTickValue = ws.Cells(2, 11)
+        BadTickValue = ws.Cells(2, 11)
+        VolumeTickValue = ws.Cells(2, 12).Value
+        
+        For i = 2 To LastRow2
+            
+            If ws.Cells(i, 11).Value > GreatTickValue Then
+                GreatTickValue = ws.Cells(i, 11).Value
+                GreatTick = ws.Cells(i, 9).Value
+            End If
+            
+            If ws.Cells(i, 11).Value < BadTickValue Then
+                BadTickValue = ws.Cells(i, 11).Value
+                BadTick = ws.Cells(i, 9).Value
+            End If
+            
+            If ws.Cells(i, 12).Value > VolumeTickValue Then
+                VolumeTickValue = ws.Cells(i, 12).Value
+                VolumeTick = ws.Cells(i, 9).Value
+            End If
+            
+        Next i
+
+        ws.Range("O2") = GreatTick
+        ws.Range("O3") = BadTick
+        ws.Range("O4") = VolumeTick
+        ws.Range("P2").NumberFormat = "0.00%"
+        ws.Range("P3").NumberFormat = "0.00%"
+        ws.Range("P2") = GreatTickValue
+        ws.Range("P3") = BadTickValue
+        ws.Range("P4") = VolumeTickValue
+        
+        Next ws
+        
+End Sub
+
